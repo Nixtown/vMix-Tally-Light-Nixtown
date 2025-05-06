@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tally Light</title>
+  <style>
+    :root {
+      --danger: #dc3545;
+    }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    main {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      width: calc(100% - 2rem);
+      max-width: 400px;
+      margin: 1rem auto;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      margin: 0;
+      text-align: center;
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.25rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    input[type="color"] {
+      width: 100%;
+      height: 2.5rem;
+      padding: 0;
+      border: 1px solid #ccc;
+      border-radius: 0.25rem;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      box-sizing: border-box;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input[type="color"]::-webkit-color-swatch-wrapper {
+      padding: 0;
+      border-radius: 0.25rem;
+    }
+
+    input[type="color"]::-webkit-color-swatch {
+      border: none;
+      border-radius: 0.25rem;
+    }
+
+    input:focus {
+      border-color: #000;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+      outline: none;
+    }
+
+    .button {
+      width: 100%;
+      padding: 0.6rem;
+      border: none;
+      border-radius: 0.25rem;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      box-sizing: border-box;
+    }
+
+    .save-button {
+      background: #000;
+      color: #fff;
+    }
+
+    .save-button:hover {
+      background: #222;
+    }
+
+    .reset-button {
+      background: transparent;
+      color: var(--danger);
+      border: 2px solid var(--danger);
+    }
+
+    .reset-button:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Vmix Tally Light</h1>
+    <div class="subtitle">Created by: Nix_the_world</div>
+
+    <form action="/save" method="GET">
+      <label for="device_name">Device Name</label>
+      <input type="text" id="device_name" name="device_name" value="%DEVICE_NAME%" required />
+
+      <label for="vmix_ip">vMix IP</label>
+      <input type="text" id="vmix_ip" name="vmix_ip" value="%VMIX_IP%" required />
+
+      <label for="input_number">Input Number</label>
+      <input type="number" id="input_number" name="input_number" value="%INPUT_NUMBER%" min="1" required />
+
+      <label for="preview_color">Preview Color</label>
+      <input type="color" id="preview_color" name="preview_color" value="%PREVIEW_COLOR%" required />
+
+      <label for="active_color">Active Color</label>
+      <input type="color" id="active_color" name="active_color" value="%ACTIVE_COLOR%" required />
+
+      <button type="submit" class="button save-button">Save</button>
+    </form>
+
+    <form action="/reset" method="GET">
+      <button type="submit" class="button reset-button">Reset Settings</button>
+    </form>
+  </main>
+</body>
+</html>
