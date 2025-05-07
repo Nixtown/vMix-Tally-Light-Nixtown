@@ -1,165 +1,137 @@
-# vMix Tally Light - Nixtown Edition
+# vMix Tally Light - Nixtown
 
-An ESP32-powered tally light system for live video production with [vMix](https://www.vmix.com/). This project lights up WS2812 (NeoPixel-style) LEDs to indicate **Preview** and **Program** status via the vMix TCP TALLY protocol. It includes a full web interface for setup, Wi-Fi configuration via AP mode, and reliable backup via double-reset fallback.
-
----
-
-## ⚙️ How It Works
-
-* The ESP32 connects to **vMix** using TCP (port `8099`) and subscribes to tally updates.
-* Based on the input number configured, the LEDs light up:
-
-  * 🔴 **Red (Active Color)** when the input is live in **Program**
-  * 🟡 **Yellow (Preview Color)** when the input is in **Preview**
-  * ⚫ **Off** when idle
+A lightweight ESP32-based tally light system for use with vMix. Designed for live production setups that need visual indicators for **Preview** and **Program** states.
 
 ---
 
 ## 📦 Features
 
-* WS2812 LED support (FastLED)
-* Web UI served from ESP32 using LittleFS
-* Wi-Fi setup using **WiFiManager**
-* Color picker for customizing Preview/Active colors
-* Stores settings in **non-volatile Preferences**
-* **Double-reset fallback**: enter AP mode by unplugging during rainbow sequence
-* Reset settings via the web UI
+* Connects to vMix over TCP (port 8099)
+* Displays tally light color for **Preview** and **Program** states
+* Web-based configuration portal
+* Color pickers for user-defined preview/program LED colors
+* Auto AP mode if Wi-Fi is not configured
+* **Double reset** to force AP mode again (unplug during rainbow)
+* mDNS support (access via `http://device-name.local`)
 
 ---
 
-## 🔧 Setup Instructions
+## 🚦 Boot-Up Color Reference
 
-### 1. Flashing the ESP32
-
-You will need:
-
-* ESP32 board (e.g., ESP32-C3, ESP32 DevKit)
-* Arduino IDE with ESP32 board support installed
-* Required libraries:
-
-  * `WiFiManager`
-  * `FastLED`
-  * `LittleFS` for ESP32
-  * `Preferences`
-
-### 📁 Uploading Files with LittleFS
-
-To upload the `index.html` file using **LittleFS**:
-
-#### For Arduino IDE 2.x:
-
-1. Download the VSIX plugin file: [`arduino-littlefs-upload`](https://github.com/earlephilhower/arduino-littlefs-upload/releases)
-2. Inside the repo, the plugin file is already included for convenience.
-3. Install the `.vsix` by going to:
-
-   * Arduino IDE → Extensions (left sidebar) → Click `...` → `Install from VSIX...`
-4. Select the `arduino-littlefs-upload-*.vsix` file
-5. Restart the IDE if needed
-6. Press `Cmd + Shift + P` (or `Ctrl + Shift + P` on Windows/Linux) to open the **Command Palette**
-7. Run: `ESP32 LittleFS Data Upload`
-8. This uploads the contents of the `/data` folder to LittleFS on your ESP32
-
-#### For Arduino IDE 1.x:
-
-Use the traditional menu method from the `Tools > ESP32 Sketch Data Upload` (plugin link: [https://github.com/lorol/arduino-esp32fs-plugin](https://github.com/lorol/arduino-esp32fs-plugin))
-
-Then flash the `.ino` sketch as usual.
-
-### 2. First Boot (or Reset)
-
-When first booted or reset:
-
-* If no saved Wi-Fi, the ESP32 will enter **AP Mode**.
-* The device will broadcast a Wi-Fi network: `TallyLight-Setup`
-* Connect to it with your phone or computer.
-* The captive portal will let you choose a Wi-Fi network and enter:
-
-  * vMix IP address
-  * Input number
-  * Device name (for mDNS like `http://tallylight-0.local/`)
-  * Preview/Active colors
+| Color Pattern      | Meaning                            |
+| ------------------ | ---------------------------------- |
+| 🌈 Rainbow         | Initializing (may occur twice)     |
+| ✅ 3 Green Blinks   | Connected to Wi-Fi                 |
+| 🟣 3 Purple Blinks | Connected to vMix                  |
+| 🔵 Blue Pulse      | AP Mode active (connect to portal) |
+| 🟡 3 Yellow Blinks | Reset fallback (settings cleared)  |
 
 ---
 
-## 🌈 Boot-Up LED Indicators
+## 🌐 How It Works
 
-These LED patterns indicate system status during startup:
+When the device powers on:
 
-* 🌈 **Rainbow Cycle**: Initializing — device is starting up and may repeat this sequence twice
-* ✅ **3 Green Blinks**: Successfully connected to Wi-Fi
-* ✅ **3 Purple Blinks**: Connected to vMix
-* 🔵 **Blue Pulse then Solid Blue**: AP Mode — device is in setup mode, connect to it through Wi-Fi
-* ⚠️ **3 Yellow Blinks**: Double-reset detected, clearing settings and entering AP mode
+1. It tries to connect to saved Wi-Fi.
+2. If it fails, it enters **AP Mode** and shows a **blue pulsing LED**.
+3. You can connect to it via Wi-Fi and open the **setup portal**.
+4. After connecting to Wi-Fi, visit `http://tallylight-0.local` to finish setup.
+5. **Important:** If you're deploying multiple devices, change the device name after connecting to avoid mDNS conflicts.
 
----
+If you forget the device name, perform a **Quick Reset**:
 
-## 🌐 Web Portal Features
-
-Once connected to your Wi-Fi network, visit the ESP32:
-
-* At its IP (check your router)
-* Or at: `http://your-device-name.local` (e.g., `http://tallylight-0.local`)
-
-### Web UI Includes:
-
-* Change device name, vMix IP, and input number
-* Pick custom colors for preview/program
-* Save settings (applies immediately)
-* **Reset Settings** button (clears Wi-Fi and preferences)
-
-### Important: Rename Your Device!
-
-If you plan to use multiple tally lights:
-
-* Each device must have a **unique name** (e.g., `tallylight-1`, `tallylight-2`)
-* After initial Wi-Fi setup, visit the `.local` address (e.g., `http://tallylight-0.local`) to **change the name**
-* If two devices have the same name, mDNS conflicts will occur
-* If you forget the device name or lose access, perform a **quick reset** (see below)
+* Unplug the device **while rainbow animation is showing**.
+* On next boot, it will **clear settings and return to AP mode**.
 
 ---
 
-## 🔁 Double Reset Fallback
+## 🌈 Web Portal
 
-If something goes wrong or you need to start over:
+Access the configuration page at `http://<device-name>.local` or the IP shown in the serial log. From here, you can:
 
-* Wait until the device is displaying a **rainbow LED pattern** (on boot)
-* Quickly **unplug and replug the device twice** during that rainbow period
-* You'll see an **orange blink**, and then it enters AP mode again
-* This is useful if you forget the device name or can't connect
-
----
-
-## 🖥️ Finding the vMix IP Address
-
-In vMix:
-
-1. Go to **Settings** > **Web Controller**
-2. Look for the IP listed under **Local Network Address** (e.g., `192.168.1.123`)
-3. Enter this IP into the Tally Light web UI
-
-**Note**: Your ESP32 must be on the **same local network** as the computer running vMix.
+* Change Device Name
+* Set vMix IP address
+* Define the Input Number
+* Pick Preview and Active Colors
+* Reset settings to default
 
 ---
 
-## 🧪 Advanced Notes
+## 🔌 Finding Your vMix IP
 
-* vMix sends TALLY data like `TALLY OK 1000...`, and the device checks the state at the `input_number - 1` index
-* Colors are stored as **hex strings** (e.g., `#ff0000`) and parsed into `CRGB` objects
-* Preferences are stored in NVS (`Preferences`), so settings persist after reboot
-* mDNS (Multicast DNS) allows access like `http://tallylight-0.local/` on most modern networks
+Inside vMix:
 
----
-
-## 📜 License
-
-MIT License. Use freely, modify, distribute — no warranty. See `LICENSE` file.
+* Go to **Settings → Web Controller**
+* Your computer’s IP address will be listed there (e.g. `192.168.1.25`)
+* Enter this into the "vMix IP" field on the tally light web page
 
 ---
 
-## 👋 Credits
+## 🔁 Reset Methods
 
-Created by **Nix\_the\_world** as part of the Bag-o-meter project.
-
-Inspired by the need for a simple, reliable tally light system for live production.
+| Method                 | Effect                             |
+| ---------------------- | ---------------------------------- |
+| Reset button           | Restarts device normally           |
+| Unplug during rainbow  | Clears settings and enters AP mode |
+| Reset button during AP | Stays in AP mode                   |
 
 ---
+
+## 🔧 Arduino Setup
+
+### ✅ Required Libraries
+
+Install these via Arduino Library Manager:
+
+* `WiFiManager` by tzapu
+* `FastLED` by Daniel Garcia
+* `ESPmDNS`
+* `Preferences`
+* `LittleFS`
+
+Also make sure you’ve installed the **ESP32 board support** from Espressif in the Board Manager.
+
+### 📂 Filesystem Upload (LittleFS)
+
+To upload the HTML/CSS config page to your ESP32:
+
+1. Create a folder named `/data` in your sketch directory.
+2. Put your `index.html` file there.
+3. Use the **ESP32 LittleFS Upload Tool** below.
+
+### 🧩 Installing LittleFS Plugin in Arduino IDE 2.x
+
+Arduino IDE 2.x does **not** use `.jar` plugins like the older IDE. Instead, you install `.vsix` files manually:
+
+1. **Download the `.vsix` plugin** from:
+   [https://github.com/earlephilhower/arduino-littlefs-upload/releases](https://github.com/earlephilhower/arduino-littlefs-upload/releases)
+
+2. Move it to this location:
+
+   ```
+   ~/.arduinoIDE/deployedPlugins
+   ```
+
+   *(On macOS. Create the folder if it doesn’t exist.)*
+
+3. Restart the Arduino IDE.
+
+4. Press `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux)
+
+5. Run:
+
+   ```
+   ESP32: LittleFS Data Upload
+   ```
+
+This uploads your `/data` files to ESP32 flash memory.
+
+---
+
+## 📃 License
+
+MIT License — do whatever you want, just don’t blame me 😄
+
+---
+
+Created with ❤️ by [@nix\_the\_world](https://github.com/yourusername) for live streaming setups everywhere.
