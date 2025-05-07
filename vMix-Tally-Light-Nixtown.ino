@@ -107,23 +107,18 @@ void updateInputNumber(int newInput) {
 
 void handleSave() {
   // Read and clean input
-  String newIP = server.arg("vmix_ip");
-  newIP.trim();
-
+  String newIP = server.arg("vmix_ip"); newIP.trim();
   int newInput = server.arg("input_number").toInt();
-
-  String newDeviceName = server.arg("device_name");
-  newDeviceName.trim();
+  String newDeviceName = server.arg("device_name"); newDeviceName.trim();
 
   activeHex = server.arg("active_color");
   previewHex = server.arg("preview_color");
 
-
-
   Serial.println("🎨 Received active color: " + activeHex);
   Serial.println("🎨 Received preview color: " + previewHex);
 
-  // Save all preferences in one go
+  bool nameChanged = false;
+
   prefs.begin("tally", false);
 
   if (newIP != vmixIP) {
@@ -139,15 +134,14 @@ void handleSave() {
   if (newDeviceName != deviceName) {
     deviceName = newDeviceName;
     prefs.putString("device_name", deviceName);
+    nameChanged = true;
   }
 
   prefs.putString("active_color", activeHex);
   prefs.putString("preview_color", previewHex);
   prefs.end();
 
-
-  // Restart mDNS and redirect if device name changed
-  if (newDeviceName != deviceName) {
+  if (nameChanged) {
     MDNS.end();
     delay(100);
     if (MDNS.begin(deviceName.c_str())) {
@@ -158,17 +152,11 @@ void handleSave() {
 
     String redirectHTML = "<html><head><meta http-equiv='refresh' content='3;url=http://" + deviceName + ".local/' /></head><body><h3>Device name changed to <b>" + deviceName + "</b>.</h3><p>Redirecting to <a href='http://" + deviceName + ".local/'>http://" + deviceName + ".local/</a> in 3 seconds...</p></body></html>";
     server.send(200, "text/html", redirectHTML);
-    return;
+  } else {
+    server.sendHeader("Location", "/");
+    server.send(302, "text/plain", "Settings saved, redirecting...");
   }
-
-  // Normal redirect
-  server.sendHeader("Location", "/");
-  server.send(302, "text/plain", "Settings saved, redirecting...");
 }
-
-
-
-
 
 void handleReset() {
   Serial.println("⚠️ Reset requested via /reset – Clearing settings");
