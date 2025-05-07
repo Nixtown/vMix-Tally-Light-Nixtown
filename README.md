@@ -77,11 +77,15 @@ Inside vMix:
 
 ---
 
+Here’s your updated section with a clear note about the board compatibility:
+
+---
+
 ## 🔧 Arduino Setup
 
 ### ✅ Required Libraries
 
-Install these via Arduino Library Manager:
+Install these via **Arduino Library Manager**:
 
 * `WiFiManager` by tzapu
 * `FastLED` by Daniel Garcia
@@ -89,7 +93,22 @@ Install these via Arduino Library Manager:
 * `Preferences`
 * `LittleFS`
 
-Also make sure you’ve installed the **ESP32 board support** from Espressif in the Board Manager.
+Also make sure you’ve installed the **ESP32 board support** from **Espressif** via **Board Manager**.
+
+---
+
+### ⚠️ Board Selection
+
+Although the hardware is sold as **Teyleten Robot ESP32-C3**,
+you **must select** the board as:
+
+```
+LOLIN C3 Mini
+```
+
+in the Arduino IDE.
+This code only works properly when compiled for the **LOLIN C3 Mini** variant due to pin mappings and USB behavior.
+
 
 ### 📂 Filesystem Upload (LittleFS)
 
@@ -138,6 +157,29 @@ ESP32: LittleFS Data Upload
 This uploads your `/data` files to ESP32 flash memory.
 
 ---
+
+Absolutely! Here's a new section you can add to your README or release notes to guide users on what to buy:
+
+---
+
+## 🛒 Shopping List (Amazon)
+
+To build your own Tally Light system, you'll need the following components — all available on Amazon:
+
+### 🔌 Core Components
+
+* [**Teyleten Robot ESP32-C3 Development Board (3-pack)**](https://www.amazon.com/hz/wishlist/ls/Y0TJ246P24J9?ref_=wl_share)
+  Compact ESP32-C3 Supermini boards with WiFi & Bluetooth — perfect for small enclosures and low power use.
+
+* [**BTF-LIGHTING WS2812B RGB LED Strip (144 LEDs/m, 1 meter)**](https://www.amazon.com/hz/wishlist/ls/Y0TJ246P24J9?ref_=wl_share)
+  High-density individually addressable LEDs with vivid color — ideal for clean animation and clear status indicators.
+
+⚠️ **Note:** This LED strip does not come with a power adapter or controller — but power is provided via USB in this project.
+
+---
+
+Let me know if you’d like help turning that into a collapsible section or want to include wiring instructions too.
+
 
 ## 📃 License
 
