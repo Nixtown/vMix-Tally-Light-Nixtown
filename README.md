@@ -101,28 +101,39 @@ To upload the HTML/CSS config page to your ESP32:
 
 ### 🧩 Installing LittleFS Plugin in Arduino IDE 2.x
 
-Arduino IDE 2.x does **not** use `.jar` plugins like the older IDE. Instead, you install `.vsix` files manually:
+Arduino IDE 2.x does **not** use `.jar` plugins like the older IDE. Instead, it uses `.vsix` files.
 
-1. **Download the `.vsix` plugin** from:
-   [https://github.com/earlephilhower/arduino-littlefs-upload/releases](https://github.com/earlephilhower/arduino-littlefs-upload/releases)
+#### Option 1: Use the included plugin
 
-2. Move it to this location:
+This repo includes `arduino-littlefs-upload-1.5.4.vsix`. To install it:
+
+1. Move the file to this location:
 
    ```
    ~/.arduinoIDE/deployedPlugins
    ```
 
-   *(On macOS. Create the folder if it doesn’t exist.)*
+   *(Create the folder if it doesn’t exist.)*
+2. Restart Arduino IDE.
+
+#### Option 2: Download the latest version
+
+Get the newest release from:
+👉 [https://github.com/earlephilhower/arduino-littlefs-upload/releases](https://github.com/earlephilhower/arduino-littlefs-upload/releases)
+\~/.arduinoIDE/deployedPlugins
+
+```
+*(On macOS. Create the folder if it doesn’t exist.)*
 
 3. Restart the Arduino IDE.
 
 4. Press `Cmd+Shift+P` (Mac) or `Ctrl+Shift+P` (Windows/Linux)
-
 5. Run:
+```
 
-   ```
-   ESP32: LittleFS Data Upload
-   ```
+ESP32: LittleFS Data Upload
+
+```
 
 This uploads your `/data` files to ESP32 flash memory.
 
@@ -134,4 +145,6 @@ MIT License — do whatever you want, just don’t blame me 😄
 
 ---
 
-Created with ❤️ by [@nix\_the\_world](https://github.com/yourusername) for live streaming setups everywhere.
+Created with ❤️ by [@nix_the_world](https://github.com/yourusername) for live streaming setups everywhere.
+
+```
