@@ -19,6 +19,7 @@ const int VMIX_TCP_PORT = 8099;
 WiFiClient vmixClient;
 bool connectedToVmix = false;
 String tallyState = "Inactive"; // Track tally state
+String styleContent;
 
 
 
@@ -280,6 +281,17 @@ void connectToVmix() {
     prefs.end();
   }
 
+  void loadCustomStyle() {
+  File f = LittleFS.open("/wifimanager_style.html", "r");
+  if (f) {
+    styleContent = f.readString();
+    f.close();
+    wm.setCustomHeadElement(styleContent.c_str()); // safe now!
+  } else {
+    Serial.println("⚠️ Failed to load style");
+  }
+}
+
 
 void setup() {
   // Initialize serial for logging
@@ -378,6 +390,9 @@ void setup() {
     wm.addParameter(&p_device);
     wm.setAPCallback(configModeCallback);
     wm.setDebugOutput(true);
+
+    loadCustomStyle();
+
     bool portalOK = wm.startConfigPortal((deviceName + "-Setup").c_str());
     if (portalOK) {
       Serial.println("🧪 AP portal closed successfully");
