@@ -5,27 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Tally Light</title>
   <style>
-    body, html {
+    html, body {
       font-family: 'Arial Rounded MT Bold', sans-serif;
       background-color: #0c0c0c;
       color: #f3f3f3;
       margin: 0;
       padding: 0;
       text-align: center;
+      overflow-x: hidden;
     }
 
     h1 {
       font-size: 1.75rem;
       color: #ffffff;
       margin: 1.5rem 0 0.5rem;
-      text-align: center;
     }
 
     h3 {
       color: #bbb;
       font-weight: normal;
       margin: 0.25rem 0 1.5rem;
-      text-align: center;
     }
 
     .wrap {
@@ -36,14 +35,16 @@
       display: inline-block;
       max-width: 400px;
       width: calc(100% - 2rem);
+      box-sizing: border-box;
+      margin-top: 24px;
     }
 
     label {
-      text-align: left;
       display: block;
       margin-bottom: 0.25rem;
       font-size: 0.9rem;
       color: #ddd;
+      text-align: left;
     }
 
     input[type="text"],
@@ -80,6 +81,18 @@
     input[type="color"]::-webkit-color-swatch {
       border: none;
       border-radius: 0.25rem;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      margin: 0.5rem 0 0.25rem;
+    }
+
+    .range-value {
+      text-align: right;
+      font-size: 0.9rem;
+      color: #bbb;
+      margin-bottom: 1rem;
     }
 
     input:focus {
@@ -127,6 +140,23 @@
     a:hover {
       text-decoration: underline;
     }
+
+    .color-row {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+    }
+
+    .color-group {
+      flex: 1;
+    }
+
+    @media (max-width: 480px) {
+      .color-row {
+        flex-direction: column;
+        gap: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -144,11 +174,20 @@
       <label for="input_number">Input Number</label>
       <input type="number" id="input_number" name="input_number" value="%INPUT_NUMBER%" min="1" required />
 
-      <label for="preview_color">Preview Color</label>
-      <input type="color" id="preview_color" name="preview_color" value="%PREVIEW_COLOR%" required />
+      <div class="color-row">
+        <div class="color-group">
+          <label for="preview_color">Preview Color</label>
+          <input type="color" id="preview_color" name="preview_color" value="%PREVIEW_COLOR%" required />
+        </div>
+        <div class="color-group">
+          <label for="active_color">Active Color</label>
+          <input type="color" id="active_color" name="active_color" value="%ACTIVE_COLOR%" required />
+        </div>
+      </div>
 
-      <label for="active_color">Active Color</label>
-      <input type="color" id="active_color" name="active_color" value="%ACTIVE_COLOR%" required />
+      <label for="brightness">Brightness</label>
+      <input type="range" id="brightness" name="brightness" min="1" max="255" value="%BRIGHTNESS%" oninput="brightnessValue.textContent = brightness.value" />
+      <div class="range-value">Value: <span id="brightnessValue">%BRIGHTNESS%</span></div>
 
       <button type="submit">Save</button>
     </form>

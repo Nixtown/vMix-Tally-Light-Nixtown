@@ -20,6 +20,7 @@ WiFiClient vmixClient;
 bool connectedToVmix = false;
 String tallyState = "Inactive"; // Track tally state
 String styleContent;
+int ledBrightness = 255; // default full brightness
 
 
 
@@ -28,7 +29,7 @@ WiFiManager wm;
 WebServer server(80);
 Preferences prefs;
 bool apModeActive = false;
-String deviceName = "tallylight-0";
+String deviceName = "Tallylight";
 String activeHex = "#ff0000";
 String previewHex = "#ffff00";
 
@@ -107,14 +108,12 @@ void updateInputNumber(int newInput) {
 }
 
 void handleSave() {
-  // Read and clean input
   String newIP = server.arg("vmix_ip"); newIP.trim();
   int newInput = server.arg("input_number").toInt();
   String newDeviceName = server.arg("device_name"); newDeviceName.trim();
-
   activeHex = server.arg("active_color");
   previewHex = server.arg("preview_color");
-
+  int newBrightness = server.arg("brightness").toInt();
   Serial.println("🎨 Received active color: " + activeHex);
   Serial.println("🎨 Received preview color: " + previewHex);
 
@@ -126,16 +125,30 @@ void handleSave() {
     vmixIP = newIP;
     prefs.putString("vmix_ip", vmixIP);
   }
-
   if (newInput > 0 && newInput != inputNumber) {
     inputNumber = newInput;
     prefs.putInt("input_number", inputNumber);
   }
-
   if (newDeviceName != deviceName) {
     deviceName = newDeviceName;
     prefs.putString("device_name", deviceName);
     nameChanged = true;
+  }
+ if (newBrightness >= 1 && newBrightness <= 255 && newBrightness != ledBrightness) {
+    ledBrightness = newBrightness;
+    prefs.putInt("brightness", ledBrightness);
+    FastLED.setBrightness(ledBrightness);
+    // Reapply current tally color
+    if (tallyState == "Program") {
+      CRGB color = strtol(activeHex.c_str() + 1, nullptr, 16);
+      setAll(color);
+    } else if (tallyState == "Preview") {
+      CRGB color = strtol(previewHex.c_str() + 1, nullptr, 16);
+      setAll(color);
+    } else {
+      setAll(CRGB::Black);
+    }
+    Serial.println("💾 Saved Brightness: " + String(ledBrightness));
   }
 
   prefs.putString("active_color", activeHex);
@@ -150,7 +163,6 @@ void handleSave() {
     } else {
       Serial.println("❌ Failed to restart mDNS with new name");
     }
-
     String redirectHTML = "<html><head><meta http-equiv='refresh' content='3;url=http://" + deviceName + ".local/' /></head><body><h3>Device name changed to <b>" + deviceName + "</b>.</h3><p>Redirecting to <a href='http://" + deviceName + ".local/'>http://" + deviceName + ".local/</a> in 3 seconds...</p></body></html>";
     server.send(200, "text/html", redirectHTML);
   } else {
@@ -159,42 +171,44 @@ void handleSave() {
   }
 }
 
-void handleReset() {
-  Serial.println("⚠️ Reset requested via /reset – Clearing settings");
-  server.sendHeader("Location", "/"); // Redirect to root
-  server.send(302, "text/plain", "Redirecting to home..."); // 302 Found
-  server.client().flush();
-  server.client().stop();
-  Serial.println("📤 HTTP response sent, connection closed");
-  delay(1000);
-  wm.resetSettings();
-  prefs.begin("tally", false);
-  prefs.clear();
-  prefs.end();
-  Serial.println("🔄 Rebooting...");
-  ESP.restart();
-}
-
 void handleRoot() {
   File file = LittleFS.open("/index.html", "r");
   if (!file) {
     server.send(404, "text/plain", "File not found");
     return;
   }
-
   String html = file.readString();
   file.close();
 
   html.replace("%VMIX_IP%", vmixIP);
   html.replace("%INPUT_NUMBER%", String(inputNumber));
   html.replace("%DEVICE_NAME%", deviceName);
-
   html.replace("%PREVIEW_COLOR%", previewHex);
   html.replace("%ACTIVE_COLOR%", activeHex);
+  html.replace("%BRIGHTNESS%", String(ledBrightness));
 
   server.send(200, "text/html", html);
 }
 
+void handleReset() {
+  Serial.println("⚠️ Reset requested via /reset – Clearing settings");
+
+  String resetHTML = "<html><head><style>body{font-family:Arial;text-align:center;padding:2rem;background-color:#0c0c0c;color:#f3f3f3;}</style></head><body><h2>Tally Light is resetting...</h2><p>When the light turns solid blue, connect to the Wi-Fi network:</p><p><strong>Tallylight-Setup</strong></p><p>This page will no longer be accessible until Wi-Fi is configured.</p></body></html>";
+  server.send(200, "text/html", resetHTML);
+
+  server.client().flush();
+  server.client().stop();
+  delay(2000);
+
+  wm.resetSettings();
+  prefs.begin("tally", false);
+  prefs.clear();
+  prefs.end();
+
+  Serial.println("🔄 Rebooting...");
+  delay(1000);
+  ESP.restart();
+}
 
 
 // === AP Mode Callback for Logging ===
@@ -322,11 +336,10 @@ void setup() {
   Serial.println("📦 Loaded Input Number: " + String(inputNumber));
   int refusedCount = prefs.getInt("refused_count", 0);
   Serial.println("   Refused Count: " + String(refusedCount));
-  deviceName = prefs.getString("device_name", "tallylight-0");
+  deviceName = prefs.getString("device_name", "Tallylight");
   Serial.println("📦 Loaded Device Name: " + deviceName);
   activeHex = prefs.getString("active_color", "#ff0000");
   previewHex = prefs.getString("preview_color", "#ffff00");
-
 
 
 
@@ -428,7 +441,11 @@ void setup() {
       apModeActive = true;
     }
   }
+
+  ledBrightness = prefs.getInt("brightness", 150);
+  FastLED.setBrightness(ledBrightness);  // or lower if needed
   prefs.end();
+  
 }
 
 void loop() {

@@ -23,6 +23,7 @@
   }
 
   .wrap {
+    margin-top: 24px;
     padding: 2rem;
     background-color: #1e1e1e;
     border-radius: 0.5rem;
@@ -76,17 +77,25 @@
   .q:after {
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALwAAAAgCAYAAACo7RKTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAB7UlEQVR4nO3YsWpUQRjF8f8XAykNSAoNBCGQJiJI7Ewh4ivYWohNkibkBUQibjohARuLNAGfwV5LuzyBFsFGbNVsjkVm47jczRIvyd1hzq/ZOzP322+Lk8kwwSWTtNI0HxGfL7u3+09Ef43oH1fRP/sdAExdZVOzrjnwVhUH3qriwFtVHHirigNvVXHgrSrTbb9gAu55a+/f6T131/0vyju8VcWBt6o48FaV1md4s65IWgTWgHtp6hB4FxGHo2oceCuSpKfAS+B2Nv0IeCKpFxF7TXUOvBVH0hrwdsTyTWBX0vWIeDW86DO8FUXSArCbTe0Dd4Fl4E02vy3pznD92B1+Au6Zu+5f9T131/0bbPA3t+8j4lm2tpV+71YabwLP82Lv8Faa1fQp4EXD+g7wKz0/lPTPH6YDb8VI/2wW0vAn8L3htR/AUXq+wdApxoG3YqRTVD8NBTQdq/IjWB84yRcdeCtNDH2e+25E9PMJX0taESTdB3rArTQ1A3ySdMxpjgP4zekmPp/emZX0EdgGPoADb+V4DTzOxgEsjamZAh4AB8DcYMKsBG0257Pjz7Tvud2/y/4XcDL+lfG13uGtKg68VcWBt6o48FYVB95Kca1F7dkNjwNvpfjWovbr4MGBt1L0gC//UXcErA8GfwCUvaTg8O5jQgAAAABJRU5ErkJggg==") !important;
   }
+
 </style>
 <script>
   window.addEventListener('DOMContentLoaded', () => {
     const heading = document.querySelector('h1');
+
+    // Change heading text
     if (heading && heading.textContent.includes("WiFiManager")) {
       heading.textContent = "vMix Tally Light";
+
+      // Hide <br> and <hr> only on this page
+      document.querySelectorAll('br, hr').forEach(el => el.style.display = 'none');
     }
 
+    // Change button text
     const firstForm = document.querySelector('form[action="/wifi"] button');
     if (firstForm && firstForm.textContent.includes("Configure WiFi")) {
-      firstForm.textContent = "Connect";
+      firstForm.textContent = "Search Networks";
     }
   });
 </script>
+
